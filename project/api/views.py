@@ -1,3 +1,4 @@
+from cgitb import lookup
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -9,6 +10,13 @@ from .models import Room
 class RoomView(generics.ListAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
+
+
+class GetRoom(APIView):
+    serializer_class = RoomSerializer
+    lookup_url_kward = 'code'
+
+
 
 class CreateRoomView(APIView):
     serializer_class = CreateRoomSerializer
@@ -31,5 +39,5 @@ class CreateRoomView(APIView):
                 room = Room(host=host, guest_can_pause=guest_can_pause, votes_to_skip=votes_to_skip)
                 room.save()
             return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
-            
+
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)

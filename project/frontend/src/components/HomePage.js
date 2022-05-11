@@ -11,21 +11,15 @@ import {
   Redirect,
 } from "react-router-dom";
 
-export default class HomePage extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <Router>
-        <Routes>
-          <Route exact path="/" element={<h1> this home </h1>} />
-          <Route path="/join" element={<RoomJoinPage />} />
-          <Route path="/create" element={<CreateRoomPage />} />
-          <Route path="/room/:roomCode" element={<Room />} />
-        </Routes>
-      </Router>
-    );
-  }
+export default function HomePage() {
+  return (
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<h1> this is home </h1>} />
+        <Route path="/join" element={<RoomJoinPage />} />
+        <Route path="/create" element={<CreateRoomPage />} />
+        <Route path="/room/:roomCode" element={<Room />} />
+      </Routes>
+    </Router>
+  );
 }

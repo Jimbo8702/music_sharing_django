@@ -1,38 +1,36 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
-export default class Room extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      votesToSkip: 1,
-      guestCanPause: false,
-      isHost: false,
-    };
+export default function Room() {
+  const params = useParams();
+  const [roomState, setRoomState] = useState({
+    votesToSkip: 1,
+    guestCanPause: false,
+    isHost: false,
+  });
+  const roomCode = params.roomCode;
+  useEffect(() => {
+    getRoomDetails(roomCode);
+  }, []);
 
-    this.roomCode = props.match.params.roomCode;
-    this.getRoomDetails();
-  }
-  getRoomDetails() {
-    fetch("/api/get-room" + "?code=" + this.roomCode)
-      .then((response) => {
-        response.json();
-      })
+  function getRoomDetails(roomCode) {
+    fetch("http://localhost:8000/api/get-room" + "?code=" + roomCode)
+      .then((response) => response.json())
       .then((data) => {
-        this.setState({
+        setRoomState({
           votesToSkip: data.votes_to_skip,
           guestCanPause: data.guest_can_pause,
           isHost: data.is_host,
         });
       });
   }
-  render() {
-    return (
-      <div>
-        <h3>{this.roomCode}</h3>
-        <p>Votes: {this.state.votesToSkip}</p>
-        <p>Guest Can Pause: {this.state.guestCanPause.toString()}</p>
-        <p>Host: {this.state.isHost.toString()}</p>
-      </div>
-    );
-  }
+
+  return (
+    <div>
+      <h3>{roomCode}</h3>
+      <p>Votes: {roomState.votesToSkip}</p>
+      <p>Guest Can Pause: {roomState.guestCanPause.toString()}</p>
+      <p>Host: {roomState.isHost.toString()}</p>
+    </div>
+  );
 }

@@ -9,8 +9,8 @@ export default class Room extends Component {
       isHost: false,
     };
 
-    // this.roomCode = props.match.params.roomCode;
-    // this.getRoomDetails();
+    this.roomCode = props.match.params.roomCode;
+    this.getRoomDetails();
   }
   getRoomDetails() {
     fetch("/api/get-room" + "?code=" + this.roomCode)

@@ -1,10 +1,11 @@
 from cgitb import lookup
 from os import stat
+from tkinter.messagebox import QUESTION
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import RoomSerializer, CreateRoomSerializer
+from .serializers import RoomSerializer, CreateRoomSerializer, UpdateRoomSerializer
 from .models import Room
 from django.http import JsonResponse
 # Create your views here.
@@ -73,6 +74,7 @@ class CreateRoomView(APIView):
                 room = queryset[0]
                 room.guest_can_pause = guest_can_pause
                 room.votes_to_skip = votes_to_skip
+                room.host = host
                 room.save(update_fields=["guest_can_pause", "votes_to_skip"])
                 self.request.session['room_code'] = room.code
                 return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
@@ -111,3 +113,28 @@ class LeaveRoom(APIView):
                 room.delete()
         
         return Response({"Message": 'Success'}, status=status.HTTP_200_OK)
+
+class UpdateRoom(APIView):
+    serializer_class = UpdateRoomSerializer
+    def post(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            guest_can_pause = serializer.data.get('guest_can_pause')
+            votes_to_skip = serializer.data.get('votes_to_skip')
+            code = serializer.data.get('code')
+            queryset = Room.objects.filter(code=code)
+            if not queryset.exists():
+                return Response({'Msg': 'room not found'}, status=status.HTTP_404_NOT_FOUND)
+            room = queryset[0]
+            user_id = self.request.session.session_key
+            if room.host != user_id:
+                return Response({'Error': 'invalid permissions'}, status=status.HTTP_403_FORBIDDEN)
+            room.guest_can_pause = guest_can_pause
+            room.votes_to_skip = votes_to_skip
+            room.save(update_fields=['guest_can_pause', 'votes_to_skip'])
+            return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+        return Response({'Bad Request': "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+
+        

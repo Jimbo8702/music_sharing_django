@@ -1,56 +1,58 @@
-import React, { Component, useState } from "react";
-import Button from "@material-ui/core/Button";
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import FormControl from "@material-ui/core/FormControl";
-import { Link, useNavigate } from "react-router-dom";
-import Radio from "@material-ui/core/Radio";
-import RadioGroup from "@material-ui/core/RadioGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Grid,
+  Button,
+  Typography,
+  FormControl,
+  FormHelperText,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  TextField,
+} from "@material-ui/core";
 
-export default function CreateRoomPage({ update, info }) {
+export default function Settings({ info, updateRoom }) {
   const navigate = useNavigate();
-  const [createRoomState, setCreateRoomState] = useState({
-    guestCanPause: true,
-    votesToSkip: 1,
+  const [roomState, setRoomState] = useState({
+    guestCanPause: info.guestCanPause,
+    votesToSkip: info.votesToSkip,
   });
 
   function handleInputChange(e) {
     if (e.target.name == "guestCanPause") {
-      setCreateRoomState({
-        votesToSkip: createRoomState.votesToSkip,
+      setRoomState({
+        votesToSkip: roomState.votesToSkip,
         guestCanPause: e.target.value === "true" ? true : false,
       });
     } else if (e.target.name == "votesToSkip") {
-      setCreateRoomState({
+      setRoomState({
         votesToSkip: e.target.value,
-        guestCanPause: createRoomState.guestCanPause,
+        guestCanPause: roomState.guestCanPause,
       });
     }
   }
-  function handleRoomButtonPressed() {
+  function handleUpdateRoom() {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        votes_to_skip: createRoomState.votesToSkip,
-        guest_can_pause: createRoomState.guestCanPause,
+        votes_to_skip: roomState.votesToSkip,
+        guest_can_pause: roomState.guestCanPause,
+        code: info.code,
       }),
     };
-    fetch("/api/create-room", requestOptions)
+    fetch("/api/update-room", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        navigate(`/room/${data.code}`);
+        updateRoom();
       });
   }
-
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} align="center">
         <Typography component="h4" variant="h4">
-          Create a Room
+          Settings
         </Typography>
       </Grid>
       <Grid item xs={12} align="center">
@@ -86,7 +88,7 @@ export default function CreateRoomPage({ update, info }) {
             type="number"
             name="votesToSkip"
             onChange={handleInputChange}
-            defaultValue={createRoomState.votesToSkip}
+            defaultValue={roomState.votesToSkip}
             inputProps={{
               min: 1,
               style: { textAlign: "center" },
@@ -98,17 +100,8 @@ export default function CreateRoomPage({ update, info }) {
         </FormControl>
       </Grid>
       <Grid item xs={12} align="center">
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={handleRoomButtonPressed}
-        >
-          Create A Room
-        </Button>
-      </Grid>
-      <Grid item xs={12} align="center">
-        <Button color="secondary" variant="contained" to="/" component={Link}>
-          Back
+        <Button color="primary" variant="contained" onClick={handleUpdateRoom}>
+          Update A Room
         </Button>
       </Grid>
     </Grid>

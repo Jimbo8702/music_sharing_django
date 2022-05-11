@@ -16,18 +16,7 @@ export default function CreateRoomPage() {
     guestCanPause: true,
     votesToSkip: 1,
   });
-  // function handleVotesChange(e) {
-  //   console.log(e.target.value);
-  //   setCreateRoomState({
-  //     votesToSkip: e.target.value,
-  //   });
-  // }
 
-  // function handleGuestCanPauseChange(e) {
-  //   setCreateRoomState({
-  //     guestCanPause: e.target.value === "true" ? true : false,
-  //   });
-  // }
   function handleInputChange(e) {
     if (e.target.name == "guestCanPause") {
       setCreateRoomState({
